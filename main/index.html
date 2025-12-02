@@ -1,0 +1,2674 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서지매니저 - 참고문헌 관리 프로그램</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 라이트 모드 색상 */
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            
+            --bg-color: #ffffff;
+            --surface-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --hover-color: #f1f5f9;
+            
+            --sidebar-width: 250px;
+            --detail-width: 350px;
+            --header-height: 60px;
+            --footer-height: 40px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            
+            --transition: all 0.2s ease;
+        }
+        
+        /* 다크 모드 */
+        [data-theme="dark"] {
+            --primary-color: #3b82f6;
+            --primary-hover: #60a5fa;
+            --secondary-color: #94a3b8;
+            --success-color: #10b981;
+            --danger-color: #f87171;
+            --warning-color: #fbbf24;
+            --info-color: #60a5fa;
+            
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --card-bg: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --hover-color: #2d3748;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+        
+        /* 레이아웃 컨테이너 */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* 헤더 */
+        .app-header {
+            height: var(--header-height);
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: var(--shadow-sm);
+            z-index: 100;
+            position: relative;
+        }
+        
+        .header-left, .header-center, .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+        
+        .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 4px;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-icon:hover {
+            background-color: var(--hover-color);
+            color: var(--text-primary);
+        }
+        
+        .search-container {
+            position: relative;
+            width: 400px;
+            max-width: 100%;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+        
+        .btn-secondary {
+            padding: 8px 16px;
+            border-radius: var(--radius-md);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        
+        .user-menu:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--hover-color);
+        }
+        
+        /* 메인 콘텐츠 영역 */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* 사이드바 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        
+        .sidebar-section {
+            padding: 20px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .sidebar-section h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .sidebar-list {
+            list-style: none;
+        }
+        
+        .sidebar-item {
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: var(--hover-color);
+        }
+        
+        .sidebar-item.active {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+        
+        .sidebar-item i {
+            width: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .sidebar-item.active i {
+            color: var(--primary-color);
+        }
+        
+        .sidebar-item .count {
+            margin-left: auto;
+            background-color: var(--surface-color);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .collection-tree {
+            padding-left: 24px;
+        }
+        
+        .tag-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tag-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* 메인 콘텐츠 영역 */
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .content-toolbar {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background-color: var(--surface-color);
+            padding: 4px;
+            border-radius: var(--radius-md);
+        }
+        
+        .view-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        
+        .view-btn.active {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .sort-filter {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            padding: 8px 12px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        
+        .dropdown-toggle:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .dropdown-menu.active {
+            display: block;
+        }
+        
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .dropdown-item:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .items-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            display: none;
+        }
+        
+        .item-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .item-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .item-card.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+        
+        .item-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        
+        .item-checkbox {
+            margin-top: 3px;
+        }
+        
+        .item-favorite {
+            color: var(--warning-color);
+            cursor: pointer;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            flex: 1;
+            color: var(--text-primary);
+        }
+        
+        .item-authors {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        
+        .item-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .item-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            background-color: var(--surface-color);
+            color: var(--text-secondary);
+            margin-right: 8px;
+        }
+        
+        .item-abstract {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .item-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background-color: var(--surface-color);
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+        
+        .tag.ai {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .tag.nlp {
+            background-color: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .tag.ml {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .tag.dh {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+        
+        /* 상세 정보 패널 */
+        .detail-panel {
+            width: var(--detail-width);
+            background-color: var(--card-bg);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        
+        .detail-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .detail-header h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .detail-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: var(--transition);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .detail-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .tab-pane {
+            display: none;
+        }
+        
+        .tab-pane.active {
+            display: block;
+        }
+        
+        .metadata-item {
+            margin-bottom: 16px;
+        }
+        
+        .metadata-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        
+        .metadata-value {
+            color: var(--text-primary);
+        }
+        
+        .authors-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .author-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .corresponding {
+            font-size: 0.75rem;
+            color: var(--success-color);
+            background-color: rgba(16, 185, 129, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .note-item {
+            background-color: var(--surface-color);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .note-type {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .citation-box {
+            background-color: var(--surface-color);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-family: 'Times New Roman', serif;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            white-space: pre-wrap;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background-color: var(--surface-color);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+        
+        /* 푸터 */
+        .app-footer {
+            height: var(--footer-height);
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .sync-success {
+            color: var(--success-color);
+        }
+        
+        /* 모달 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background-color: var(--surface-color);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        
+        /* 반응형 디자인 */
+        @media (max-width: 1200px) {
+            :root {
+                --detail-width: 300px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            :root {
+                --sidebar-width: 200px;
+                --detail-width: 280px;
+            }
+            
+            .search-container {
+                width: 300px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: var(--header-height);
+                height: calc(100vh - var(--header-height));
+                z-index: 1000;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .detail-panel {
+                position: fixed;
+                right: -100%;
+                top: var(--header-height);
+                height: calc(100vh - var(--header-height));
+                z-index: 1000;
+            }
+            
+            .detail-panel.active {
+                right: 0;
+            }
+            
+            .search-container {
+                width: 200px;
+            }
+            
+            .content-toolbar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .sort-filter {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header-center {
+                display: none;
+            }
+            
+            .action-buttons .btn-text {
+                display: none;
+            }
+            
+            .btn-primary {
+                padding: 8px;
+            }
+            
+            .user-name {
+                display: none;
+            }
+        }
+        
+        /* 유틸리티 클래스 */
+        .hidden {
+            display: none !important;
+        }
+        
+        .d-flex {
+            display: flex;
+        }
+        
+        .d-block {
+            display: block;
+        }
+        
+        .d-none {
+            display: none;
+        }
+        
+        .align-center {
+            align-items: center;
+        }
+        
+        .justify-between {
+            justify-content: space-between;
+        }
+        
+        .justify-center {
+            justify-content: center;
+        }
+        
+        .w-100 {
+            width: 100%;
+        }
+        
+        .gap-1 {
+            gap: 4px;
+        }
+        
+        .gap-2 {
+            gap: 8px;
+        }
+        
+        .gap-3 {
+            gap: 12px;
+        }
+        
+        .mt-1 {
+            margin-top: 4px;
+        }
+        
+        .mt-2 {
+            margin-top: 8px;
+        }
+        
+        .mt-3 {
+            margin-top: 12px;
+        }
+        
+        .mb-1 {
+            margin-bottom: 4px;
+        }
+        
+        .mb-2 {
+            margin-bottom: 8px;
+        }
+        
+        .mb-3 {
+            margin-bottom: 12px;
+        }
+        
+        .text-sm {
+            font-size: 0.85rem;
+        }
+        
+        .text-muted {
+            color: var(--text-secondary);
+        }
+        
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        
+        /* 로딩 인디케이터 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* 알림 */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 3000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .notification.info {
+            border-left: 4px solid var(--info-color);
+        }
+        
+        .notification.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 헤더 -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="btn-icon" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-book"></i>
+                    <span>서지매니저</span>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn-icon" title="뒤로" id="backBtn">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button class="btn-icon" title="앞으로" id="forwardBtn">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn-icon" title="새로고침" id="refreshBtn">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="제목, 저자, 태그 또는 DOI로 검색">
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="action-buttons">
+                    <button class="btn-primary" id="addItemBtn">
+                        <i class="fas fa-plus"></i>
+                        <span class="btn-text">새 항목</span>
+                    </button>
+                    <button class="btn-icon" title="내보내기" id="exportBtn">
+                        <i class="fas fa-file-export"></i>
+                    </button>
+                </div>
+                
+                <button class="theme-toggle" id="themeToggle" title="테마 전환">
+                    <i class="fas fa-moon"></i>
+                </button>
+                
+                <div class="user-menu" id="userMenu">
+                    <div class="user-avatar">김</div>
+                    <span class="user-name">김연구자</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 메인 콘텐츠 -->
+        <div class="main-content">
+            <!-- 사이드바 -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-section">
+                    <h3>내 라이브러리</h3>
+                    <ul class="sidebar-list" id="libraryList">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>컬렉션</h3>
+                    <ul class="sidebar-list" id="collectionList">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>태그</h3>
+                    <ul class="sidebar-list" id="tagList">
+                        <!-- 동적으로 생성됨 -->
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>그룹 라이브러리</h3>
+                    <ul class="sidebar-list">
+                        <li>
+                            <a href="#" class="sidebar-item" data-filter="group" data-value="research-team">
+                                <i class="fas fa-users"></i>
+                                <span>연구팀 A</span>
+                                <span class="count">56</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="sidebar-item" id="newGroupBtn">
+                                <i class="fas fa-plus"></i>
+                                <span>새 그룹</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+            
+            <!-- 메인 콘텐츠 영역 -->
+            <main class="content-area">
+                <div class="content-toolbar">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="list">
+                            <i class="fas fa-list"></i>
+                            <span>목록</span>
+                        </button>
+                        <button class="view-btn" data-view="grid">
+                            <i class="fas fa-th-large"></i>
+                            <span>격자</span>
+                        </button>
+                        <button class="view-btn" data-view="pdf">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>PDF</span>
+                        </button>
+                    </div>
+                    
+                    <div class="sort-filter">
+                        <div class="dropdown" id="sortDropdown">
+                            <button class="dropdown-toggle">
+                                <span>정렬: 연도순</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" data-sort="year">연도순 (최신순)</div>
+                                <div class="dropdown-item" data-sort="title">제목순</div>
+                                <div class="dropdown-item" data-sort="author">저자순</div>
+                                <div class="dropdown-item" data-sort="added">추가순</div>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown" id="filterDropdown">
+                            <button class="dropdown-toggle">
+                                <span>필터: 모두</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <div class="dropdown-item" data-filter="all">모두</div>
+                                <div class="dropdown-item" data-filter="type" data-value="journal">저널 논문</div>
+                                <div class="dropdown-item" data-filter="type" data-value="conference">학회지 논문</div>
+                                <div class="dropdown-item" data-filter="type" data-value="book">도서</div>
+                                <div class="dropdown-item" data-filter="type" data-value="thesis">학위논문</div>
+                            </div>
+                        </div>
+                        
+                        <span class="text-muted text-sm" id="itemCount">0개 항목</span>
+                    </div>
+                </div>
+                
+                <div class="items-list" id="itemsList">
+                    <!-- 문헌 아이템 카드는 JavaScript로 동적 생성됨 -->
+                </div>
+                
+                <div class="items-grid" id="itemsGrid">
+                    <!-- 격자 뷰는 JavaScript로 동적 생성됨 -->
+                </div>
+                
+                <div id="pdfViewer" class="hidden" style="flex: 1; padding: 16px; display: flex; flex-direction: column;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 id="pdfTitle">PDF 뷰어</h3>
+                        <button class="btn-icon" id="closePdfViewer">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div style="flex: 1; background-color: var(--surface-color); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+                        <div style="text-align: center;">
+                            <i class="fas fa-file-pdf" style="font-size: 3rem; margin-bottom: 12px;"></i>
+                            <p>PDF 뷰어가 여기에 표시됩니다.</p>
+                            <p class="text-sm">실제 구현에서는 pdf.js 등의 라이브러리를 사용합니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- 상세 정보 패널 -->
+            <aside class="detail-panel" id="detailPanel">
+                <div class="detail-header">
+                    <h3 id="detailTitle">상세 정보</h3>
+                    <button class="btn-icon" id="detailClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="detail-tabs">
+                    <button class="detail-tab active" data-tab="metadata">메타데이터</button>
+                    <button class="detail-tab" data-tab="notes">메모</button>
+                    <button class="detail-tab" data-tab="citation">인용</button>
+                    <button class="detail-tab" data-tab="files">첨부파일</button>
+                </div>
+                
+                <div class="tab-content" id="tabContent">
+                    <!-- 탭 내용은 JavaScript로 동적 생성됨 -->
+                </div>
+            </aside>
+        </div>
+        
+        <!-- 푸터 -->
+        <footer class="app-footer">
+            <div class="sync-status">
+                <i class="fas fa-sync-alt sync-success" id="syncIcon"></i>
+                <span id="syncStatus">동기화 완료</span>
+            </div>
+            <div id="selectedCount">0개 항목 선택됨</div>
+            <div>© 2023 서지매니저 v1.0</div>
+        </footer>
+    </div>
+    
+    <!-- 새 항목 추가 모달 -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>새 항목 추가</h3>
+                <button class="btn-icon" id="closeAddModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn-primary" data-method="doi" style="flex: 1;">
+                        <i class="fas fa-link"></i>
+                        DOI/ISBN/URL
+                    </button>
+                    <button class="btn-secondary" data-method="pdf" style="flex: 1;">
+                        <i class="fas fa-file-pdf"></i>
+                        PDF 업로드
+                    </button>
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn-secondary" data-method="search" style="flex: 1;">
+                        <i class="fas fa-search"></i>
+                        웹에서 검색
+                    </button>
+                    <button class="btn-secondary" data-method="manual" style="flex: 1;">
+                        <i class="fas fa-edit"></i>
+                        수동 입력
+                    </button>
+                </div>
+                
+                <div id="methodContent">
+                    <!-- 선택된 방법에 따라 내용이 변경됨 -->
+                    <div id="doiMethod" class="method-pane active">
+                        <div class="form-group">
+                            <label class="form-label">DOI, ISBN 또는 URL 입력</label>
+                            <input type="text" class="form-input" id="doiInput" placeholder="예: 10.1145/3132847.3132886">
+                        </div>
+                        <button class="btn-primary w-100" id="fetchByDoi">
+                            <i class="fas fa-download"></i>
+                            정보 가져오기
+                        </button>
+                    </div>
+                    
+                    <div id="pdfMethod" class="method-pane hidden">
+                        <div class="form-group">
+                            <label class="form-label">PDF 파일 업로드</label>
+                            <div style="border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 40px 20px; text-align: center; cursor: pointer;" id="pdfDropZone">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: 12px; color: var(--text-secondary);"></i>
+                                <p>PDF 파일을 여기에 끌어다 놓거나 클릭하여 선택</p>
+                                <p class="text-sm text-muted">최대 50MB</p>
+                            </div>
+                            <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;">
+                        </div>
+                    </div>
+                    
+                    <div id="searchMethod" class="method-pane hidden">
+                        <div class="form-group">
+                            <label class="form-label">검색어</label>
+                            <input type="text" class="form-input" id="searchQuery" placeholder="논문 제목, 저자, 키워드">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">데이터베이스</label>
+                            <select class="form-select" id="searchDatabase">
+                                <option value="crossref">Crossref</option>
+                                <option value="google">Google Scholar</option>
+                                <option value="pubmed">PubMed</option>
+                                <option value="riss">RISS (한국)</option>
+                                <option value="kci">KCI (한국학술지)</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary w-100" id="startSearch">
+                            <i class="fas fa-search"></i>
+                            검색 시작
+                        </button>
+                    </div>
+                    
+                    <div id="manualMethod" class="method-pane hidden">
+                        <div class="form-group">
+                            <label class="form-label">문헌 유형</label>
+                            <select class="form-select" id="itemType">
+                                <option value="journal">저널 논문</option>
+                                <option value="conference">학회지 논문</option>
+                                <option value="book">도서</option>
+                                <option value="bookSection">도서 장</option>
+                                <option value="thesis">학위논문</option>
+                                <option value="report">보고서</option>
+                                <option value="webpage">웹페이지</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">제목</label>
+                            <input type="text" class="form-input" id="manualTitle" placeholder="논문 제목">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">저자</label>
+                            <input type="text" class="form-input" id="manualAuthors" placeholder="저자1, 저자2, 저자3">
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="previewArea" class="hidden">
+                    <hr style="margin: 20px 0; border-color: var(--border-color);">
+                    <h4 style="margin-bottom: 12px;">미리보기</h4>
+                    <div id="itemPreview" style="background-color: var(--surface-color); padding: 16px; border-radius: var(--radius-md);">
+                        <!-- 미리보기 내용이 여기에 표시됨 -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelAdd">취소</button>
+                <button class="btn-primary" id="saveItem" disabled>저장</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 알림 -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationMessage">알림 메시지</span>
+    </div>
+
+    <script>
+        // 데이터베이스 (임의의 데이터)
+        const bibliographyData = {
+            items: [
+                {
+                    id: 1,
+                    title: "서지관리 프로그램의 UI/UX 분석 및 설계",
+                    authors: ["김철수", "이영희", "박지훈"],
+                    year: 2023,
+                    journal: "한국소프트웨어학회지",
+                    volume: "30",
+                    issue: "4",
+                    pages: "123-135",
+                    doi: "10.xxxx/xxxx",
+                    abstract: "본 연구는 서지관리 프로그램의 사용자 인터페이스와 사용자 경험을 분석하고, 개선된 설계 방안을 제시한다. 주요 기능으로는 참고문헌 수집, 관리, 인용 생성 등을 포함하며, 현대적 연구 워크플로우에 적합한 통합 환경을 구축하는 방법에 대해 논의한다.",
+                    type: "journal",
+                    tags: ["AI", "NLP", "연구도구", "UIUX"],
+                    favorite: true,
+                    collections: ["인공지능 연구", "UI/UX 연구"],
+                    addedDate: "2023-11-15",
+                    notes: [
+                        {type: "인용구", content: "UI 설계는 사용자의 연구 워크플로우를 지원해야 하며, 불필요한 복잡성을 제거하는 것이 핵심이다."},
+                        {type: "검토", content: "방법론 부분 재확인 필요\n참고문헌 15번 확인 필요\n표 3의 데이터 검증"}
+                    ],
+                    files: [
+                        {name: "full-text.pdf", size: "2.4 MB", date: "2023-05-15", type: "pdf"},
+                        {name: "supplementary.pdf", size: "1.1 MB", date: "2023-05-15", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 2,
+                    title: "딥러닝 기반 한국어 텍스트 분석 시스템",
+                    authors: ["이영희", "김철수", "정민수"],
+                    year: 2022,
+                    journal: "KCI",
+                    volume: "15",
+                    issue: "2",
+                    pages: "45-67",
+                    doi: "10.yyyy/yyyy",
+                    abstract: "한국어 텍스트 분석을 위한 딥러닝 모델을 제안한다. BERT 기반의 언어 모델을 활용하여 한국어의 특성을 반영한 새로운 아키텍처를 설계하고 실험을 통해 성능을 검증하였다. 본 연구에서 제안한 모델은 기존 모델 대비 15% 향상된 성능을 보였다.",
+                    type: "journal",
+                    tags: ["AI", "NLP", "한국어처리", "딥러닝"],
+                    favorite: false,
+                    collections: ["인공지능 연구", "NLP 프로젝트", "한국어 처리"],
+                    addedDate: "2022-09-22",
+                    notes: [
+                        {type: "아이디어", content: "이 모델을 우리 프로젝트에 적용해볼 수 있을 것 같다."}
+                    ],
+                    files: [
+                        {name: "paper.pdf", size: "3.2 MB", date: "2022-08-10", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 3,
+                    title: "Research Data Management in Digital Humanities",
+                    authors: ["Smith, John", "Johnson, Emma", "Williams, David"],
+                    year: 2021,
+                    journal: "International Journal of Digital Humanities",
+                    volume: "3",
+                    issue: "1",
+                    pages: "89-112",
+                    doi: "10.zzzz/zzzz",
+                    abstract: "This paper explores the challenges and opportunities of research data management in digital humanities, proposing a framework for sustainable data practices. We examine case studies from three major digital humanities projects and identify key factors for successful data management.",
+                    type: "journal",
+                    tags: ["디지털인문학", "데이터관리", "연구데이터"],
+                    favorite: false,
+                    collections: ["디지털 인문학"],
+                    addedDate: "2021-12-05",
+                    notes: [],
+                    files: [
+                        {name: "full-article.pdf", size: "1.8 MB", date: "2021-10-20", type: "pdf"},
+                        {name: "data.zip", size: "45 MB", date: "2021-10-15", type: "zip"}
+                    ]
+                },
+                {
+                    id: 4,
+                    title: "머신러닝 모델의 해석 가능성에 대한 연구",
+                    authors: ["박지훈", "최미나", "김동현"],
+                    year: 2023,
+                    journal: "한국인공지능학회 논문지",
+                    volume: "28",
+                    issue: "3",
+                    pages: "234-251",
+                    doi: "10.aaaa/aaaa",
+                    abstract: "본 논문은 머신러닝 모델, 특히 딥러닝 모델의 해석 가능성에 대한 종합적 연구를 제시한다. 다양한 해석 방법론을 비교 분석하고, 실제 응용 사례를 통해 각 방법의 장단점을 평가한다.",
+                    type: "journal",
+                    tags: ["AI", "머신러닝", "해석가능성", "XAI"],
+                    favorite: true,
+                    collections: ["인공지능 연구", "머신러닝"],
+                    addedDate: "2023-08-30",
+                    notes: [
+                        {type: "참고", content: "이 논문의 방법론 섹션을 참고할 것"}
+                    ],
+                    files: [
+                        {name: "main.pdf", size: "2.1 MB", date: "2023-07-15", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 5,
+                    title: "디지털 아카이브 구축을 위한 메타데이터 표준 연구",
+                    authors: ["정민수", "이지은"],
+                    year: 2022,
+                    journal: "한국문헌정보학회지",
+                    volume: "56",
+                    issue: "2",
+                    pages: "78-95",
+                    doi: "10.bbbb/bbbb",
+                    abstract: "디지털 아카이브 구축에 필요한 메타데이터 표준에 대한 연구로, 다양한 국제 표준을 비교 분석하고 한국적 상황에 맞는 적용 방안을 제시한다.",
+                    type: "journal",
+                    tags: ["메타데이터", "디지털아카이브", "문헌정보학"],
+                    favorite: false,
+                    collections: ["디지털 인문학", "메타데이터 연구"],
+                    addedDate: "2022-11-10",
+                    notes: [],
+                    files: [
+                        {name: "논문본문.pdf", size: "1.5 MB", date: "2022-09-25", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 6,
+                    title: "인공지능 윤리 가이드라인 비교 연구",
+                    authors: ["이수진", "박종혁", "김태영", "최윤아"],
+                    year: 2023,
+                    journal: "AI 윤리 연구",
+                    volume: "5",
+                    issue: "1",
+                    pages: "33-58",
+                    doi: "10.cccc/cccc",
+                    abstract: "국내외 주요 기관에서 제시한 인공지능 윤리 가이드라인을 비교 분석하고, 한국 사회에 적합한 윤리 프레임워크를 제안한다.",
+                    type: "journal",
+                    tags: ["AI", "AI윤리", "가이드라인", "정책"],
+                    favorite: true,
+                    collections: ["인공지능 연구", "AI 윤리"],
+                    addedDate: "2023-10-05",
+                    notes: [
+                        {type: "프로젝트", content: "이 연구를 참고하여 우리 팀의 AI 윤리 가이드라인 작성"}
+                    ],
+                    files: [
+                        {name: "ai-ethics.pdf", size: "3.5 MB", date: "2023-09-18", type: "pdf"},
+                        {name: "appendix.docx", size: "0.8 MB", date: "2023-09-15", type: "docx"}
+                    ]
+                },
+                {
+                    id: 7,
+                    title: "Python을 활용한 데이터 과학 입문",
+                    authors: ["김동현"],
+                    year: 2021,
+                    publisher: "한빛아카데미",
+                    pages: "456",
+                    isbn: "979-11-xxxx-xxxx-x",
+                    abstract: "Python 프로그래밍 언어를 활용한 데이터 과학 입문서로, 데이터 분석, 시각화, 머신러닝 기초까지 폭넓게 다룬다.",
+                    type: "book",
+                    tags: ["Python", "데이터과학", "프로그래밍", "교육"],
+                    favorite: false,
+                    collections: ["데이터 과학"],
+                    addedDate: "2021-06-15",
+                    notes: [
+                        {type: "강의", content: "이 책을 데이터 과학 강의 교재로 사용"}
+                    ],
+                    files: [
+                        {name: "sample-chapter.pdf", size: "5.2 MB", date: "2021-05-20", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 8,
+                    title: "대규모 언어 모델의 효율적 학습 방법",
+                    authors: ["Zhang, Wei", "Chen, Li", "Wang, Hao"],
+                    year: 2023,
+                    journal: "Proceedings of ACL 2023",
+                    pages: "1125-1140",
+                    doi: "10.dddd/dddd",
+                    abstract: "We propose an efficient training method for large language models that reduces computational costs by 40% while maintaining performance. Our approach combines several optimization techniques and demonstrates effectiveness across multiple benchmarks.",
+                    type: "conference",
+                    tags: ["AI", "NLP", "대규모언어모델", "효율화"],
+                    favorite: true,
+                    collections: ["인공지능 연구", "NLP 프로젝트"],
+                    addedDate: "2023-07-22",
+                    notes: [],
+                    files: [
+                        {name: "acl2023.pdf", size: "4.1 MB", date: "2023-06-30", type: "pdf"},
+                        {name: "slides.pptx", size: "12.3 MB", date: "2023-07-05", type: "pptx"}
+                    ]
+                },
+                {
+                    id: 9,
+                    title: "한국어 역사 문서의 디지털화 방법론",
+                    authors: ["이지은", "홍길동"],
+                    year: 2020,
+                    journal: "디지털인문학연구",
+                    volume: "12",
+                    issue: "3",
+                    pages: "67-89",
+                    doi: "10.eeee/eeee",
+                    abstract: "고전 한국어 문서의 디지털화 과정에서 발생하는 문제점을 분석하고, 효과적인 디지털화 방법론을 제시한다.",
+                    type: "journal",
+                    tags: ["디지털인문학", "한국어", "역사문서", "디지털화"],
+                    favorite: false,
+                    collections: ["디지털 인문학", "한국어 처리"],
+                    addedDate: "2020-12-20",
+                    notes: [
+                        {type: "참고", content: "연구 데이터로 사용 가능"}
+                    ],
+                    files: [
+                        {name: "digitalization.pdf", size: "2.8 MB", date: "2020-11-10", type: "pdf"}
+                    ]
+                },
+                {
+                    id: 10,
+                    title: "학술지 인용 네트워크 분석을 통한 연구 동향 파악",
+                    authors: ["박종혁", "정민수"],
+                    year: 2022,
+                    journal: "과학기술정책연구",
+                    volume: "32",
+                    issue: "4",
+                    pages: "145-167",
+                    doi: "10.ffff/ffff",
+                    abstract: "학술지 인용 네트워크를 분석하여 연구 분야별 동향과 발전 패턴을 파악하는 방법론을 제시하고, 실제 데이터에 적용한 결과를 보여준다.",
+                    type: "journal",
+                    tags: ["인용분석", "네트워크분석", "과학계량학", "연구동향"],
+                    favorite: false,
+                    collections: ["연구 방법론", "데이터 과학"],
+                    addedDate: "2022-05-18",
+                    notes: [],
+                    files: [
+                        {name: "citation-network.pdf", size: "3.7 MB", date: "2022-04-12", type: "pdf"}
+                    ]
+                }
+            ],
+            collections: [
+                {id: "ai-research", name: "인공지능 연구", count: 6, icon: "fas fa-brain", color: "#10b981"},
+                {id: "nlp-project", name: "NLP 프로젝트", count: 3, icon: "fas fa-language", color: "#3b82f6"},
+                {id: "digital-humanities", name: "디지털 인문학", count: 3, icon: "fas fa-laptop-code", color: "#8b5cf6"},
+                {id: "data-science", name: "데이터 과학", count: 2, icon: "fas fa-chart-line", color: "#f59e0b"},
+                {id: "ui-ux", name: "UI/UX 연구", count: 1, icon: "fas fa-palette", color: "#ec4899"}
+            ],
+            tags: [
+                {name: "AI", count: 6, color: "#10b981"},
+                {name: "NLP", count: 4, color: "#3b82f6"},
+                {name: "머신러닝", count: 2, color: "#f59e0b"},
+                {name: "디지털인문학", count: 3, color: "#8b5cf6"},
+                {name: "연구도구", count: 1, color: "#64748b"},
+                {name: "UIUX", count: 1, color: "#ec4899"},
+                {name: "한국어처리", count: 2, color: "#3b82f6"},
+                {name: "데이터과학", count: 2, color: "#f59e0b"},
+                {name: "메타데이터", count: 1, color: "#64748b"},
+                {name: "인용분석", count: 1, color: "#ef4444"}
+            ]
+        };
+
+        // 애플리케이션 상태
+        const appState = {
+            currentView: 'list',
+            currentSort: 'year',
+            currentFilter: {type: 'all', value: null},
+            selectedItemId: 1,
+            selectedItems: new Set(),
+            currentCollection: 'all',
+            searchTerm: '',
+            isSyncing: false,
+            theme: localStorage.getItem('theme') || 'light'
+        };
+
+        // DOM 요소 참조
+        const domElements = {
+            themeToggle: document.getElementById('themeToggle'),
+            sidebarToggle: document.getElementById('sidebarToggle'),
+            detailClose: document.getElementById('detailClose'),
+            sidebar: document.getElementById('sidebar'),
+            detailPanel: document.getElementById('detailPanel'),
+            searchInput: document.getElementById('searchInput'),
+            itemsList: document.getElementById('itemsList'),
+            itemsGrid: document.getElementById('itemsGrid'),
+            pdfViewer: document.getElementById('pdfViewer'),
+            closePdfViewer: document.getElementById('closePdfViewer'),
+            viewButtons: document.querySelectorAll('.view-btn'),
+            tabButtons: document.querySelectorAll('.detail-tab'),
+            addItemBtn: document.getElementById('addItemBtn'),
+            addItemModal: document.getElementById('addItemModal'),
+            closeAddModal: document.getElementById('closeAddModal'),
+            cancelAdd: document.getElementById('cancelAdd'),
+            saveItem: document.getElementById('saveItem'),
+            methodButtons: document.querySelectorAll('[data-method]'),
+            methodPanes: document.querySelectorAll('.method-pane'),
+            fetchByDoi: document.getElementById('fetchByDoi'),
+            pdfDropZone: document.getElementById('pdfDropZone'),
+            pdfFileInput: document.getElementById('pdfFileInput'),
+            startSearch: document.getElementById('startSearch'),
+            doiInput: document.getElementById('doiInput'),
+            notification: document.getElementById('notification'),
+            notificationMessage: document.getElementById('notificationMessage'),
+            syncIcon: document.getElementById('syncIcon'),
+            syncStatus: document.getElementById('syncStatus'),
+            itemCount: document.getElementById('itemCount'),
+            selectedCount: document.getElementById('selectedCount'),
+            libraryList: document.getElementById('libraryList'),
+            collectionList: document.getElementById('collectionList'),
+            tagList: document.getElementById('tagList'),
+            sortDropdown: document.getElementById('sortDropdown'),
+            filterDropdown: document.getElementById('filterDropdown'),
+            exportBtn: document.getElementById('exportBtn'),
+            backBtn: document.getElementById('backBtn'),
+            forwardBtn: document.getElementById('forwardBtn'),
+            refreshBtn: document.getElementById('refreshBtn')
+        };
+
+        // 초기화 함수
+        function initApp() {
+            // 테마 설정
+            setTheme(appState.theme);
+            
+            // 사이드바 데이터 렌더링
+            renderSidebar();
+            
+            // 아이템 목록 렌더링
+            renderItems();
+            
+            // 상세 정보 패널 렌더링
+            renderDetailPanel(appState.selectedItemId);
+            
+            // 이벤트 리스너 설정
+            setupEventListeners();
+            
+            // 상태 업데이트
+            updateUIState();
+        }
+
+        // 사이드바 렌더링
+        function renderSidebar() {
+            // 라이브러리 섹션
+            const libraryItems = [
+                {id: 'all', name: '모든 문헌', icon: 'fas fa-book', count: bibliographyData.items.length},
+                {id: 'recent', name: '최근 추가됨', icon: 'fas fa-clock', count: bibliographyData.items.filter(item => {
+                    const addedDate = new Date(item.addedDate);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - addedDate);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 30;
+                }).length},
+                {id: 'favorites', name: '즐겨찾기', icon: 'fas fa-star', count: bibliographyData.items.filter(item => item.favorite).length},
+                {id: 'untagged', name: '미분류', icon: 'fas fa-tag', count: bibliographyData.items.filter(item => item.tags.length === 0).length}
+            ];
+            
+            domElements.libraryList.innerHTML = libraryItems.map(item => `
+                <li>
+                    <a href="#" class="sidebar-item ${appState.currentCollection === item.id ? 'active' : ''}" 
+                       data-filter="library" data-value="${item.id}">
+                        <i class="${item.icon}"></i>
+                        <span>${item.name}</span>
+                        <span class="count">${item.count}</span>
+                    </a>
+                </li>
+            `).join('');
+            
+            // 컬렉션 섹션
+            domElements.collectionList.innerHTML = bibliographyData.collections.map(collection => `
+                <li>
+                    <a href="#" class="sidebar-item ${appState.currentCollection === collection.id ? 'active' : ''}" 
+                       data-filter="collection" data-value="${collection.id}">
+                        <i class="${collection.icon}" style="color: ${collection.color};"></i>
+                        <span>${collection.name}</span>
+                        <span class="count">${collection.count}</span>
+                    </a>
+                </li>
+            `).join('');
+            
+            // 태그 섹션
+            domElements.tagList.innerHTML = bibliographyData.tags.map(tag => `
+                <li>
+                    <a href="#" class="sidebar-item" data-filter="tag" data-value="${tag.name}">
+                        <div class="tag-item">
+                            <div class="tag-color" style="background-color: ${tag.color};"></div>
+                            <span>#${tag.name}</span>
+                        </div>
+                        <span class="count">${tag.count}</span>
+                    </a>
+                </li>
+            `).join('');
+        }
+
+        // 아이템 목록 렌더링
+        function renderItems() {
+            // 필터링 및 정렬된 아이템 가져오기
+            let filteredItems = filterItems(bibliographyData.items);
+            filteredItems = sortItems(filteredItems, appState.currentSort);
+            
+            // 아이템 수 업데이트
+            domElements.itemCount.textContent = `${filteredItems.length}개 항목`;
+            
+            // 목록 뷰 렌더링
+            domElements.itemsList.innerHTML = filteredItems.map(item => `
+                <div class="item-card ${appState.selectedItemId === item.id ? 'selected' : ''} ${appState.selectedItems.has(item.id) ? 'selected' : ''}" 
+                     data-id="${item.id}">
+                    <div class="item-header">
+                        <input type="checkbox" class="item-checkbox" ${appState.selectedItems.has(item.id) ? 'checked' : ''}>
+                        <i class="${item.favorite ? 'fas' : 'far'} fa-star item-favorite"></i>
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-meta">
+                            <span>${item.year}</span>
+                            ${item.journal ? `<span>${item.journal}</span>` : ''}
+                            ${item.volume ? `<span>${item.volume}${item.issue ? `(${item.issue})` : ''}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="item-authors">${item.authors.join(', ')}</div>
+                    <div class="item-abstract">${item.abstract}</div>
+                    <div class="item-tags">
+                        ${item.tags.map(tag => {
+                            const tagData = bibliographyData.tags.find(t => t.name === tag);
+                            const tagClass = tag.toLowerCase().replace(/\s+/g, '');
+                            return `<span class="tag ${tagClass}">#${tag}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            // 격자 뷰 렌더링
+            domElements.itemsGrid.innerHTML = filteredItems.map(item => `
+                <div class="item-card ${appState.selectedItemId === item.id ? 'selected' : ''}" data-id="${item.id}">
+                    <div class="item-header">
+                        <i class="${item.favorite ? 'fas' : 'far'} fa-star item-favorite"></i>
+                        <div class="item-title">${item.title}</div>
+                    </div>
+                    <div class="item-authors">${item.authors.slice(0, 2).join(', ')}${item.authors.length > 2 ? ' 외' : ''}</div>
+                    <div class="item-meta">
+                        <span class="item-type">${getItemTypeLabel(item.type)}</span>
+                        <span>${item.year}</span>
+                        ${item.journal ? `<span>${item.journal}</span>` : ''}
+                    </div>
+                    <div class="item-tags">
+                        ${item.tags.slice(0, 3).map(tag => {
+                            const tagClass = tag.toLowerCase().replace(/\s+/g, '');
+                            return `<span class="tag ${tagClass}">#${tag}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            // 뷰 모드에 따른 표시
+            if (appState.currentView === 'list') {
+                domElements.itemsList.style.display = 'block';
+                domElements.itemsGrid.style.display = 'none';
+                domElements.pdfViewer.classList.add('hidden');
+            } else if (appState.currentView === 'grid') {
+                domElements.itemsList.style.display = 'none';
+                domElements.itemsGrid.style.display = 'grid';
+                domElements.pdfViewer.classList.add('hidden');
+            } else if (appState.currentView === 'pdf') {
+                domElements.itemsList.style.display = 'none';
+                domElements.itemsGrid.style.display = 'none';
+                domElements.pdfViewer.classList.remove('hidden');
+            }
+        }
+
+        // 상세 정보 패널 렌더링
+        function renderDetailPanel(itemId) {
+            const item = bibliographyData.items.find(i => i.id === itemId);
+            if (!item) return;
+            
+            // 제목 업데이트
+            document.getElementById('detailTitle').textContent = item.title.substring(0, 30) + (item.title.length > 30 ? '...' : '');
+            
+            // 메타데이터 탭
+            const metadataHtml = `
+                <div class="metadata-item">
+                    <div class="metadata-label">제목</div>
+                    <div class="metadata-value">${item.title}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">저자</div>
+                    <div class="authors-list">
+                        ${item.authors.map((author, index) => `
+                            <div class="author-item">
+                                <span>${author}</span>
+                                ${index === 0 ? '<span class="corresponding">교신저자</span>' : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">연도</div>
+                    <div class="metadata-value">${item.year}</div>
+                </div>
+                ${item.doi ? `
+                <div class="metadata-item">
+                    <div class="metadata-label">DOI</div>
+                    <div class="metadata-value">${item.doi}</div>
+                </div>
+                ` : ''}
+                ${item.journal ? `
+                <div class="metadata-item">
+                    <div class="metadata-label">저널</div>
+                    <div class="metadata-value">${item.journal}</div>
+                </div>
+                ` : ''}
+                ${item.volume ? `
+                <div class="metadata-item">
+                    <div class="metadata-label">권/호</div>
+                    <div class="metadata-value">${item.volume}${item.issue ? `(${item.issue})` : ''}</div>
+                </div>
+                ` : ''}
+                ${item.pages ? `
+                <div class="metadata-item">
+                    <div class="metadata-label">페이지</div>
+                    <div class="metadata-value">${item.pages}</div>
+                </div>
+                ` : ''}
+                <div class="metadata-item">
+                    <div class="metadata-label">초록</div>
+                    <div class="metadata-value">${item.abstract}</div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">키워드</div>
+                    <div class="metadata-value d-flex gap-2">
+                        ${item.tags.map(tag => {
+                            const tagClass = tag.toLowerCase().replace(/\s+/g, '');
+                            return `<span class="tag ${tagClass}">#${tag}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn-primary" id="editItemBtn">
+                        <i class="fas fa-edit"></i>
+                        편집
+                    </button>
+                    <button class="btn-icon" id="copyCitationBtn">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="btn-icon" id="openWebBtn">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                </div>
+            `;
+            
+            // 메모 탭
+            const notesHtml = `
+                ${item.notes.length > 0 ? item.notes.map(note => `
+                    <div class="note-item">
+                        <div class="note-type">${getNoteIcon(note.type)} ${note.type}</div>
+                        <div>${note.content.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `).join('') : '<p class="text-muted">메모가 없습니다.</p>'}
+                <button class="btn-primary w-100 mt-3" id="addNoteBtn">
+                    <i class="fas fa-plus"></i>
+                    새 메모 추가
+                </button>
+            `;
+            
+            // 인용 탭
+            const citationHtml = `
+                <div class="metadata-item">
+                    <div class="metadata-label">선택된 스타일</div>
+                    <div class="metadata-value">APA 7th edition</div>
+                </div>
+                <div class="citation-box">
+${generateCitation(item, 'apa')}
+                </div>
+                <div class="d-flex gap-2 mb-3">
+                    <button class="btn-primary" id="copyCitationTextBtn">
+                        <i class="fas fa-copy"></i>
+                        복사
+                    </button>
+                    <div class="dropdown">
+                        <button class="dropdown-toggle">
+                            <span>다른 형식 보기</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="dropdown-item" data-style="apa">APA 7th</div>
+                            <div class="dropdown-item" data-style="mla">MLA 9th</div>
+                            <div class="dropdown-item" data-style="chicago">Chicago 17th</div>
+                            <div class="dropdown-item" data-style="ieee">IEEE</div>
+                            <div class="dropdown-item" data-style="kci">KCI (한국학술지)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metadata-item">
+                    <div class="metadata-label">스타일</div>
+                    <div class="d-flex gap-2">
+                        <select class="form-select" id="citationStyleSelect">
+                            <option value="apa">APA 7th edition</option>
+                            <option value="mla">MLA 9th edition</option>
+                            <option value="chicago">Chicago 17th</option>
+                            <option value="ieee">IEEE</option>
+                            <option value="kci">KCI (한국학술지)</option>
+                        </select>
+                        <button class="btn-icon" id="citationSettingsBtn">
+                            <i class="fas fa-cog"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // 첨부파일 탭
+            const filesHtml = `
+                ${item.files.length > 0 ? item.files.map(file => `
+                    <div class="file-item">
+                        <div class="d-flex align-center gap-2">
+                            <i class="fas fa-${file.type === 'pdf' ? 'file-pdf' : file.type === 'docx' ? 'file-word' : file.type === 'pptx' ? 'file-powerpoint' : 'file'}" 
+                               style="color: ${getFileIconColor(file.type)};"></i>
+                            <div>
+                                <div>${file.name}</div>
+                                <div class="text-sm text-muted">${file.size} • ${file.date}</div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <button class="btn-icon" title="미리보기">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" title="다운로드">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('') : '<p class="text-muted">첨부파일이 없습니다.</p>'}
+                <button class="btn-primary w-100 mt-3" id="addFileBtn">
+                    <i class="fas fa-plus"></i>
+                    파일 추가
+                </button>
+            `;
+            
+            // 탭 내용 업데이트
+            domElements.tabContent.innerHTML = `
+                <div class="tab-pane active" id="metadataTab">${metadataHtml}</div>
+                <div class="tab-pane" id="notesTab">${notesHtml}</div>
+                <div class="tab-pane" id="citationTab">${citationHtml}</div>
+                <div class="tab-pane" id="filesTab">${filesHtml}</div>
+            `;
+        }
+
+        // 아이템 필터링
+        function filterItems(items) {
+            let filtered = [...items];
+            
+            // 검색어 필터링
+            if (appState.searchTerm) {
+                const term = appState.searchTerm.toLowerCase();
+                filtered = filtered.filter(item => 
+                    item.title.toLowerCase().includes(term) ||
+                    item.authors.some(author => author.toLowerCase().includes(term)) ||
+                    item.abstract.toLowerCase().includes(term) ||
+                    item.tags.some(tag => tag.toLowerCase().includes(term))
+                );
+            }
+            
+            // 컬렉션/태그/라이브러리 필터링
+            if (appState.currentFilter.type !== 'all') {
+                if (appState.currentFilter.type === 'collection') {
+                    filtered = filtered.filter(item => 
+                        item.collections.includes(appState.currentFilter.value)
+                    );
+                } else if (appState.currentFilter.type === 'tag') {
+                    filtered = filtered.filter(item => 
+                        item.tags.includes(appState.currentFilter.value)
+                    );
+                } else if (appState.currentFilter.type === 'library') {
+                    if (appState.currentFilter.value === 'favorites') {
+                        filtered = filtered.filter(item => item.favorite);
+                    } else if (appState.currentFilter.value === 'recent') {
+                        filtered = filtered.filter(item => {
+                            const addedDate = new Date(item.addedDate);
+                            const now = new Date();
+                            const diffTime = Math.abs(now - addedDate);
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                            return diffDays <= 30;
+                        });
+                    } else if (appState.currentFilter.value === 'untagged') {
+                        filtered = filtered.filter(item => item.tags.length === 0);
+                    }
+                }
+            }
+            
+            return filtered;
+        }
+
+        // 아이템 정렬
+        function sortItems(items, sortBy) {
+            const sorted = [...items];
+            
+            switch (sortBy) {
+                case 'year':
+                    return sorted.sort((a, b) => b.year - a.year);
+                case 'title':
+                    return sorted.sort((a, b) => a.title.localeCompare(b.title));
+                case 'author':
+                    return sorted.sort((a, b) => a.authors[0].localeCompare(b.authors[0]));
+                case 'added':
+                    return sorted.sort((a, b) => new Date(b.addedDate) - new Date(a.addedDate));
+                default:
+                    return sorted;
+            }
+        }
+
+        // 인용문 생성
+        function generateCitation(item, style) {
+            switch (style) {
+                case 'apa':
+                    const authors = item.authors.map(author => {
+                        const parts = author.split(', ');
+                        if (parts.length > 1) {
+                            return `${parts[1]} ${parts[0].charAt(0)}.`;
+                        } else {
+                            const nameParts = author.split(' ');
+                            if (nameParts.length > 1) {
+                                return `${nameParts[1]} ${nameParts[0].charAt(0)}.`;
+                            }
+                            return author;
+                        }
+                    }).join(', ');
+                    
+                    if (item.type === 'journal') {
+                        return `${authors} (${item.year}). ${item.title}. ${item.journal}, ${item.volume}${item.issue ? `(${item.issue})` : ''}, ${item.pages}.`;
+                    } else if (item.type === 'book') {
+                        return `${authors} (${item.year}). ${item.title}. ${item.publisher}.`;
+                    } else {
+                        return `${authors} (${item.year}). ${item.title}.`;
+                    }
+                    
+                case 'mla':
+                    const mlaAuthors = item.authors.map((author, index) => {
+                        if (index === 0) {
+                            const parts = author.split(', ');
+                            if (parts.length > 1) {
+                                return `${parts[0]}, ${parts[1]}.`;
+                            }
+                        } else if (index === item.authors.length - 1) {
+                            return `and ${author}.`;
+                        } else {
+                            return `${author},`;
+                        }
+                        return author;
+                    }).join(' ');
+                    
+                    return `${mlaAuthors} "${item.title}." ${item.journal ? `${item.journal}, ` : ''}${item.volume ? `vol. ${item.volume}, ` : ''}${item.issue ? `no. ${item.issue}, ` : ''}${item.year}, pp. ${item.pages}.`;
+                    
+                default:
+                    return `${item.authors.join(', ')} (${item.year}). ${item.title}. ${item.journal ? `${item.journal}, ` : ''}${item.volume ? `${item.volume}${item.issue ? `(${item.issue})` : ''}` : ''}${item.pages ? `, ${item.pages}.` : '.'}`;
+            }
+        }
+
+        // 알림 표시
+        function showNotification(message, type = 'info') {
+            domElements.notification.className = `notification ${type}`;
+            domElements.notificationMessage.textContent = message;
+            domElements.notification.classList.remove('hidden');
+            domElements.notification.classList.add('show');
+            
+            setTimeout(() => {
+                domElements.notification.classList.remove('show');
+                setTimeout(() => {
+                    domElements.notification.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // 테마 설정
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            domElements.themeToggle.innerHTML = theme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            domElements.themeToggle.title = theme === 'dark' ? '라이트 모드로 전환' : '다크 모드로 전환';
+            localStorage.setItem('theme', theme);
+            appState.theme = theme;
+        }
+
+        // 동기화 시뮬레이션
+        function simulateSync() {
+            appState.isSyncing = true;
+            domElements.syncIcon.className = 'fas fa-sync-alt loading';
+            domElements.syncStatus.textContent = '동기화 중...';
+            
+            setTimeout(() => {
+                appState.isSyncing = false;
+                domElements.syncIcon.className = 'fas fa-sync-alt sync-success';
+                domElements.syncStatus.textContent = '동기화 완료';
+                showNotification('모든 변경사항이 동기화되었습니다.', 'success');
+            }, 2000);
+        }
+
+        // UI 상태 업데이트
+        function updateUIState() {
+            // 선택된 항목 수 업데이트
+            domElements.selectedCount.textContent = `${appState.selectedItems.size}개 항목 선택됨`;
+            
+            // 사이드바 활성 상태 업데이트
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // 현재 필터에 맞는 사이드바 항목 활성화
+            if (appState.currentFilter.type === 'library') {
+                const activeItem = document.querySelector(`.sidebar-item[data-value="${appState.currentFilter.value}"]`);
+                if (activeItem) activeItem.classList.add('active');
+            } else if (appState.currentFilter.type === 'collection') {
+                const activeItem = document.querySelector(`.sidebar-item[data-value="${appState.currentCollection}"]`);
+                if (activeItem) activeItem.classList.add('active');
+            }
+        }
+
+        // 유틸리티 함수들
+        function getItemTypeLabel(type) {
+            const labels = {
+                'journal': '저널 논문',
+                'conference': '학회지 논문',
+                'book': '도서',
+                'thesis': '학위논문',
+                'report': '보고서'
+            };
+            return labels[type] || type;
+        }
+        
+        function getNoteIcon(type) {
+            const icons = {
+                '인용구': '💡',
+                '검토': '❓',
+                '아이디어': '💭',
+                '참고': '📌',
+                '프로젝트': '📁',
+                '강의': '👨‍🏫'
+            };
+            return icons[type] || '📝';
+        }
+        
+        function getFileIconColor(type) {
+            const colors = {
+                'pdf': '#e74c3c',
+                'docx': '#2b579a',
+                'pptx': '#d24726',
+                'zip': '#f39c12'
+            };
+            return colors[type] || '#64748b';
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // 테마 전환
+            domElements.themeToggle.addEventListener('click', () => {
+                const newTheme = appState.theme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+            
+            // 사이드바 토글
+            domElements.sidebarToggle.addEventListener('click', () => {
+                domElements.sidebar.classList.toggle('active');
+            });
+            
+            // 상세 패널 닫기
+            domElements.detailClose.addEventListener('click', () => {
+                domElements.detailPanel.classList.remove('active');
+            });
+            
+            // PDF 뷰어 닫기
+            domElements.closePdfViewer.addEventListener('click', () => {
+                appState.currentView = 'list';
+                renderItems();
+            });
+            
+            // 검색
+            domElements.searchInput.addEventListener('input', (e) => {
+                appState.searchTerm = e.target.value;
+                renderItems();
+            });
+            
+            // 뷰 모드 전환
+            domElements.viewButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    domElements.viewButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    appState.currentView = button.getAttribute('data-view');
+                    
+                    if (appState.currentView === 'pdf') {
+                        const selectedItem = bibliographyData.items.find(item => item.id === appState.selectedItemId);
+                        if (selectedItem && selectedItem.files.length > 0) {
+                            document.getElementById('pdfTitle').textContent = selectedItem.files[0].name;
+                        }
+                    }
+                    
+                    renderItems();
+                });
+            });
+            
+            // 새 항목 추가 모달
+            domElements.addItemBtn.addEventListener('click', () => {
+                domElements.addItemModal.classList.add('active');
+            });
+            
+            domElements.closeAddModal.addEventListener('click', () => {
+                domElements.addItemModal.classList.remove('active');
+            });
+            
+            domElements.cancelAdd.addEventListener('click', () => {
+                domElements.addItemModal.classList.remove('active');
+            });
+            
+            // 추가 방법 선택
+            domElements.methodButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const method = button.getAttribute('data-method');
+                    domElements.methodPanes.forEach(pane => pane.classList.add('hidden'));
+                    document.getElementById(`${method}Method`).classList.remove('hidden');
+                });
+            });
+            
+            // DOI로 정보 가져오기
+            domElements.fetchByDoi.addEventListener('click', () => {
+                const doi = domElements.doiInput.value.trim();
+                if (!doi) {
+                    showNotification('DOI를 입력해주세요.', 'warning');
+                    return;
+                }
+                
+                // 시뮬레이션: DOI로 정보 가져오기
+                showNotification('DOI 정보를 가져오는 중...', 'info');
+                domElements.saveItem.disabled = false;
+                
+                // 미리보기 표시
+                const previewItem = {
+                    title: "새로운 연구 논문",
+                    authors: ["새로운 저자"],
+                    year: new Date().getFullYear(),
+                    journal: "예시 저널",
+                    doi: doi
+                };
+                
+                document.getElementById('previewArea').classList.remove('hidden');
+                document.getElementById('itemPreview').innerHTML = `
+                    <strong>${previewItem.title}</strong><br>
+                    ${previewItem.authors.join(', ')} (${previewItem.year})<br>
+                    ${previewItem.journal}<br>
+                    DOI: ${previewItem.doi}
+                `;
+            });
+            
+            // 파일 업로드
+            domElements.pdfDropZone.addEventListener('click', () => {
+                domElements.pdfFileInput.click();
+            });
+            
+            domElements.pdfFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    showNotification(`"${file.name}" 파일이 선택되었습니다.`, 'success');
+                    domElements.saveItem.disabled = false;
+                    
+                    // 미리보기 표시
+                    document.getElementById('previewArea').classList.remove('hidden');
+                    document.getElementById('itemPreview').innerHTML = `
+                        <strong>PDF 파일에서 메타데이터 추출 중...</strong><br>
+                        파일명: ${file.name}<br>
+                        크기: ${(file.size / 1024 / 1024).toFixed(2)} MB<br>
+                        <div class="loading" style="margin: 10px auto;"></div>
+                    `;
+                }
+            });
+            
+            // 웹 검색
+            domElements.startSearch.addEventListener('click', () => {
+                const query = document.getElementById('searchQuery').value;
+                const database = document.getElementById('searchDatabase').value;
+                
+                if (!query) {
+                    showNotification('검색어를 입력해주세요.', 'warning');
+                    return;
+                }
+                
+                showNotification(`"${query}"를 ${database}에서 검색 중...`, 'info');
+                
+                // 검색 결과 시뮬레이션
+                setTimeout(() => {
+                    document.getElementById('previewArea').classList.remove('hidden');
+                    document.getElementById('itemPreview').innerHTML = `
+                        <strong>검색 결과 (3개 발견)</strong><br><br>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                            1. "${query}"에 관한 연구 (2023)<br>
+                            2. ${query} 방법론 개선 (2022)<br>
+                            3. ${query} 응용 사례 연구 (2021)<br>
+                        </div>
+                        <button class="btn-secondary w-100 mt-2">검색 결과 보기</button>
+                    `;
+                }, 1500);
+            });
+            
+            // 아이템 저장
+            domElements.saveItem.addEventListener('click', () => {
+                // 새 아이템 생성 (시뮬레이션)
+                const newId = Math.max(...bibliographyData.items.map(item => item.id)) + 1;
+                const newItem = {
+                    id: newId,
+                    title: `새로 추가된 논문 ${newId}`,
+                    authors: ["새 저자"],
+                    year: 2023,
+                    journal: "새 저널",
+                    abstract: "이 항목은 새로 추가되었습니다.",
+                    type: "journal",
+                    tags: ["새로운"],
+                    favorite: false,
+                    collections: [],
+                    addedDate: new Date().toISOString().split('T')[0],
+                    notes: [],
+                    files: []
+                };
+                
+                bibliographyData.items.push(newItem);
+                
+                // 사이드바 업데이트
+                renderSidebar();
+                
+                // 아이템 목록 업데이트
+                renderItems();
+                
+                // 모달 닫기
+                domElements.addItemModal.classList.remove('active');
+                
+                // 알림 표시
+                showNotification('새 항목이 추가되었습니다.', 'success');
+                
+                // 선택된 항목으로 설정
+                appState.selectedItemId = newId;
+                renderDetailPanel(newId);
+                
+                // 동기화 시뮬레이션
+                simulateSync();
+            });
+            
+            // 아이템 클릭 이벤트 (이벤트 위임)
+            document.addEventListener('click', (e) => {
+                // 아이템 카드 클릭
+                const itemCard = e.target.closest('.item-card');
+                if (itemCard) {
+                    // 체크박스 클릭이면 선택/해제
+                    if (e.target.type === 'checkbox') {
+                        const itemId = parseInt(itemCard.getAttribute('data-id'));
+                        if (e.target.checked) {
+                            appState.selectedItems.add(itemId);
+                        } else {
+                            appState.selectedItems.delete(itemId);
+                        }
+                        updateUIState();
+                        return;
+                    }
+                    
+                    // 즐겨찾기 아이콘 클릭
+                    if (e.target.classList.contains('fa-star') || e.target.parentElement.classList.contains('item-favorite')) {
+                        const itemId = parseInt(itemCard.getAttribute('data-id'));
+                        const item = bibliographyData.items.find(i => i.id === itemId);
+                        if (item) {
+                            item.favorite = !item.favorite;
+                            renderItems();
+                            renderSidebar();
+                            renderDetailPanel(appState.selectedItemId);
+                            showNotification(item.favorite ? '즐겨찾기에 추가되었습니다.' : '즐겨찾기에서 제거되었습니다.', 'success');
+                        }
+                        return;
+                    }
+                    
+                    // 일반 클릭: 선택 및 상세 정보 표시
+                    const itemId = parseInt(itemCard.getAttribute('data-id'));
+                    appState.selectedItemId = itemId;
+                    
+                    // 선택 해제
+                    if (e.ctrlKey || e.metaKey) {
+                        // 다중 선택
+                        if (appState.selectedItems.has(itemId)) {
+                            appState.selectedItems.delete(itemId);
+                        } else {
+                            appState.selectedItems.add(itemId);
+                        }
+                    } else {
+                        // 단일 선택
+                        appState.selectedItems.clear();
+                        appState.selectedItems.add(itemId);
+                    }
+                    
+                    renderItems();
+                    renderDetailPanel(itemId);
+                    
+                    // 모바일에서 상세 패널 표시
+                    if (window.innerWidth <= 768) {
+                        domElements.detailPanel.classList.add('active');
+                    }
+                    
+                    updateUIState();
+                }
+                
+                // 사이드바 필터 클릭
+                const sidebarItem = e.target.closest('.sidebar-item');
+                if (sidebarItem && sidebarItem.hasAttribute('data-filter')) {
+                    e.preventDefault();
+                    
+                    const filterType = sidebarItem.getAttribute('data-filter');
+                    const filterValue = sidebarItem.getAttribute('data-value');
+                    
+                    appState.currentFilter = {type: filterType, value: filterValue};
+                    appState.currentCollection = filterValue;
+                    
+                    // 모든 사이드바 항목 비활성화
+                    document.querySelectorAll('.sidebar-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // 클릭한 항목 활성화
+                    sidebarItem.classList.add('active');
+                    
+                    renderItems();
+                    updateUIState();
+                }
+                
+                // 탭 클릭
+                if (e.target.classList.contains('detail-tab')) {
+                    const tabId = e.target.getAttribute('data-tab');
+                    
+                    // 모든 탭 비활성화
+                    document.querySelectorAll('.detail-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    
+                    // 모든 탭 패널 숨기기
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                    });
+                    
+                    // 선택한 탭 활성화
+                    e.target.classList.add('active');
+                    document.getElementById(`${tabId}Tab`).classList.add('active');
+                }
+                
+                // 드롭다운 토글
+                if (e.target.closest('.dropdown-toggle')) {
+                    const dropdown = e.target.closest('.dropdown');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    menu.classList.toggle('active');
+                }
+                
+                // 드롭다운 항목 선택
+                if (e.target.classList.contains('dropdown-item')) {
+                    const dropdown = e.target.closest('.dropdown');
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    const toggle = dropdown.querySelector('.dropdown-toggle');
+                    
+                    if (dropdown.id === 'sortDropdown') {
+                        const sortBy = e.target.getAttribute('data-sort');
+                        appState.currentSort = sortBy;
+                        toggle.innerHTML = `<span>정렬: ${e.target.textContent}</span> <i class="fas fa-chevron-down"></i>`;
+                        renderItems();
+                    } else if (dropdown.id === 'filterDropdown') {
+                        const filterType = e.target.getAttribute('data-filter');
+                        const filterValue = e.target.getAttribute('data-value');
+                        
+                        if (filterType === 'all') {
+                            appState.currentFilter = {type: 'all', value: null};
+                            toggle.innerHTML = `<span>필터: 모두</span> <i class="fas fa-chevron-down"></i>`;
+                        } else {
+                            appState.currentFilter = {type: filterType, value: filterValue};
+                            toggle.innerHTML = `<span>필터: ${e.target.textContent}</span> <i class="fas fa-chevron-down"></i>`;
+                        }
+                        
+                        renderItems();
+                    }
+                    
+                    menu.classList.remove('active');
+                }
+            });
+            
+            // 드롭다운 외부 클릭 시 닫기
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                        menu.classList.remove('active');
+                    });
+                }
+            });
+            
+            // 드래그 앤 드롭
+            domElements.itemsList.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                domElements.itemsList.style.backgroundColor = 'var(--hover-color)';
+            });
+            
+            domElements.itemsList.addEventListener('dragleave', () => {
+                domElements.itemsList.style.backgroundColor = '';
+            });
+            
+            domElements.itemsList.addEventListener('drop', (e) => {
+                e.preventDefault();
+                domElements.itemsList.style.backgroundColor = '';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf') {
+                        showNotification(`"${file.name}" PDF 파일이 업로드되었습니다.`, 'success');
+                        
+                        // 시뮬레이션: 새 아이템 추가
+                        const newId = Math.max(...bibliographyData.items.map(item => item.id)) + 1;
+                        const newItem = {
+                            id: newId,
+                            title: file.name.replace('.pdf', ''),
+                            authors: ["PDF에서 추출된 저자"],
+                            year: new Date().getFullYear(),
+                            abstract: "PDF 파일에서 자동으로 추출된 메타데이터입니다.",
+                            type: "journal",
+                            tags: ["PDF"],
+                            favorite: false,
+                            collections: [],
+                            addedDate: new Date().toISOString().split('T')[0],
+                            notes: [],
+                            files: [
+                                {name: file.name, size: `${(file.size / 1024 / 1024).toFixed(2)} MB`, date: new Date().toISOString().split('T')[0], type: "pdf"}
+                            ]
+                        };
+                        
+                        bibliographyData.items.push(newItem);
+                        renderSidebar();
+                        renderItems();
+                        showNotification('PDF 파일에서 메타데이터를 추출하여 새 항목이 추가되었습니다.', 'success');
+                    }
+                }
+            });
+            
+            // 내보내기 버튼
+            domElements.exportBtn.addEventListener('click', () => {
+                if (appState.selectedItems.size === 0) {
+                    showNotification('내보낼 항목을 선택해주세요.', 'warning');
+                    return;
+                }
+                
+                const exportTypes = [
+                    {name: 'BibTeX (.bib)', icon: 'fas fa-file-code'},
+                    {name: 'RIS (.ris)', icon: 'fas fa-file-alt'},
+                    {name: 'CSV (.csv)', icon: 'fas fa-file-csv'},
+                    {name: 'EndNote XML (.xml)', icon: 'fas fa-file-export'},
+                    {name: 'MS Word (.docx)', icon: 'fas fa-file-word'}
+                ];
+                
+                // 내보내기 옵션 표시 (간단한 알림으로 대체)
+                showNotification(`${appState.selectedItems.size}개 항목을 내보낼 준비가 되었습니다.`, 'info');
+            });
+            
+            // 네비게이션 버튼
+            domElements.backBtn.addEventListener('click', () => {
+                showNotification('뒤로 가기 기능', 'info');
+            });
+            
+            domElements.forwardBtn.addEventListener('click', () => {
+                showNotification('앞으로 가기 기능', 'info');
+            });
+            
+            domElements.refreshBtn.addEventListener('click', () => {
+                simulateSync();
+            });
+            
+            // 키보드 단축키
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + N: 새 항목
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    domElements.addItemModal.classList.add('active');
+                }
+                
+                // Ctrl/Cmd + F: 검색 포커스
+                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                    e.preventDefault();
+                    domElements.searchInput.focus();
+                }
+                
+                // Ctrl/Cmd + A: 전체 선택
+                if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                    e.preventDefault();
+                    bibliographyData.items.forEach(item => {
+                        appState.selectedItems.add(item.id);
+                    });
+                    renderItems();
+                    updateUIState();
+                    showNotification('모든 항목이 선택되었습니다.', 'info');
+                }
+                
+                // Esc: 상세 패널 닫기
+                if (e.key === 'Escape') {
+                    domElements.detailPanel.classList.remove('active');
+                    domElements.addItemModal.classList.remove('active');
+                }
+                
+                // Delete: 선택 항목 삭제
+                if (e.key === 'Delete' && appState.selectedItems.size > 0) {
+                    if (confirm(`${appState.selectedItems.size}개 항목을 삭제하시겠습니까?`)) {
+                        // 시뮬레이션: 선택 항목 삭제
+                        appState.selectedItems.forEach(id => {
+                            const index = bibliographyData.items.findIndex(item => item.id === id);
+                            if (index !== -1) {
+                                bibliographyData.items.splice(index, 1);
+                            }
+                        });
+                        
+                        appState.selectedItems.clear();
+                        renderSidebar();
+                        renderItems();
+                        showNotification('선택한 항목이 삭제되었습니다.', 'success');
+                    }
+                }
+            });
+            
+            // 반응형 동작
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    domElements.sidebar.classList.remove('active');
+                    domElements.detailPanel.classList.remove('active');
+                }
+            });
+        }
+
+        // 애플리케이션 초기화
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
