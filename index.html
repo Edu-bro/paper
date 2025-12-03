@@ -112,7 +112,10 @@
             font-size: 1.25rem;
             color: var(--primary-color);
         }
-        
+                @media (max-width: 768px){
+            .logo { font-size: 1rem; }   /* 모바일에서 '서지매니저'만 작아짐 (아이콘은 .logo i가 따로라 영향 거의 없음) */
+        }
+
         .logo i {
             font-size: 1.5rem;
         }
@@ -1041,7 +1044,7 @@
                 </button>
                 <div class="logo">
                     <i class="fas fa-book"></i>
-                    <span>서지매니저</span>
+                    <span class="brand">서지매니저</span>
                 </div>
                 <div class="nav-buttons">
                     <button class="btn-icon" title="뒤로" id="backBtn">
